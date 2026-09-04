@@ -2,16 +2,7 @@
 
 A production-ready 3-tier e-commerce web application built with React, Go (Fiber), and MySQL, deployed on AWS EKS using Helm charts.
 
-
-
 <img width="1280" height="720" alt="Shopverse project - Thumbnail" src="https://github.com/user-attachments/assets/fd0a3efe-aeb3-48dc-8912-714517580010" />
-
-
-## YouTube Video Link:
-
-```
-https://youtu.be/XQrJrf6pUvk?si=XGsLPOm6YC1AEJFk
-```
 
 ## Architecture:
 
@@ -42,37 +33,38 @@ https://youtu.be/XQrJrf6pUvk?si=XGsLPOm6YC1AEJFk
 
 ## Tech Stack
 
-| Layer    | Technology                     |
-|----------|--------------------------------|
-| Frontend | React 18, TailwindCSS, Vite    |
-| Backend  | Go 1.21, Fiber, GORM, JWT      |
-| Database | MySQL 8.0 (StatefulSet)        |
-| Infra    | AWS EKS, ECR, ALB, Terraform   |
-| CI/CD    | GitHub Actions, Helm, Trivy    |
+| Layer    | Technology                        |
+| -------- | --------------------------------- |
+| Frontend | React 18, TailwindCSS, Vite       |
+| Backend  | Go 1.21, Fiber, GORM, JWT         |
+| Database | MySQL 8.0 (StatefulSet)           |
+| Infra    | AWS EKS, ECR, ALB, Terraform      |
+| CI/CD    | GitHub Actions, Helm, Trivy       |
 | IaC      | Terraform Modules (VPC, EKS, EC2) |
 
 ## API Endpoints
 
-| Method | Endpoint            | Auth     | Description             |
-|--------|---------------------|----------|-------------------------|
-| POST   | /api/auth/register  | No       | Register new user       |
-| POST   | /api/auth/login     | No       | Login, returns JWT      |
-| GET    | /api/products       | No       | List products           |
-| GET    | /api/products/:id   | No       | Get single product      |
-| POST   | /api/products       | JWT      | Create product (admin)  |
-| GET    | /api/cart           | JWT      | Get user's cart         |
-| POST   | /api/cart           | JWT      | Add item to cart        |
-| PUT    | /api/cart/:id       | JWT      | Update cart item qty    |
-| DELETE | /api/cart/:id       | JWT      | Remove cart item        |
-| GET    | /api/orders         | JWT      | Get user's orders       |
-| POST   | /api/orders         | JWT      | Place order from cart   |
-| GET    | /health             | No       | Health check            |
+| Method | Endpoint           | Auth | Description            |
+| ------ | ------------------ | ---- | ---------------------- |
+| POST   | /api/auth/register | No   | Register new user      |
+| POST   | /api/auth/login    | No   | Login, returns JWT     |
+| GET    | /api/products      | No   | List products          |
+| GET    | /api/products/:id  | No   | Get single product     |
+| POST   | /api/products      | JWT  | Create product (admin) |
+| GET    | /api/cart          | JWT  | Get user's cart        |
+| POST   | /api/cart          | JWT  | Add item to cart       |
+| PUT    | /api/cart/:id      | JWT  | Update cart item qty   |
+| DELETE | /api/cart/:id      | JWT  | Remove cart item       |
+| GET    | /api/orders        | JWT  | Get user's orders      |
+| POST   | /api/orders        | JWT  | Place order from cart  |
+| GET    | /health            | No   | Health check           |
 
 ---
 
 ## Local Development
 
 ### Prerequisites
+
 - Docker & Docker Compose
 - Node.js 18+ (for frontend dev)
 - Go 1.21+ (for backend dev)
@@ -116,13 +108,13 @@ DB_HOST=localhost DB_USER=shopverse DB_PASSWORD=shopverse123 DB_NAME=shopverse g
 
 Install the following tools on your local machine:
 
-| Tool       | Version  | Download |
-|------------|----------|----------|
+| Tool       | Version  | Download                                            |
+| ---------- | -------- | --------------------------------------------------- |
 | Terraform  | >= 1.5.0 | https://developer.hashicorp.com/terraform/downloads |
-| AWS CLI v2 | Latest   | https://aws.amazon.com/cli/ |
-| kubectl    | Latest   | https://kubernetes.io/docs/tasks/tools/ |
-| Helm 3     | Latest   | https://helm.sh/docs/intro/install/ |
-| Docker     | Latest   | https://docs.docker.com/get-docker/ |
+| AWS CLI v2 | Latest   | https://aws.amazon.com/cli/                         |
+| kubectl    | Latest   | https://kubernetes.io/docs/tasks/tools/             |
+| Helm 3     | Latest   | https://helm.sh/docs/intro/install/                 |
+| Docker     | Latest   | https://docs.docker.com/get-docker/                 |
 
 ---
 
@@ -175,6 +167,7 @@ terraform apply
 ```
 
 After apply completes, note the outputs:
+
 ```bash
 terraform output
 ```
@@ -379,12 +372,14 @@ kubectl logs -n shopverse shopverse-mysql-0 --tail=50
 ### Step 12: Access the Application
 
 **Get Node External IPs:**
+
 ```bash
 kubectl get nodes -o wide
 # Note the EXTERNAL-IP column
 ```
 
 **Access via NodePort:**
+
 ```
 Frontend:  http://<NODE_EXTERNAL_IP>:30080
 Backend:   http://<NODE_EXTERNAL_IP>:30081
@@ -392,6 +387,7 @@ Health:    http://<NODE_EXTERNAL_IP>:30081/health
 ```
 
 **Access via ALB Ingress (if configured):**
+
 ```bash
 kubectl get ingress -n shopverse
 # Use the ADDRESS field as the URL
@@ -430,13 +426,13 @@ kubectl get svc -n shopverse
 
 ShopVerse uses MySQL 8.0 running as a Kubernetes StatefulSet. The database contains these tables:
 
-| Table | Description |
-|-------|-------------|
-| `users` | Registered users (name, email, hashed password) |
-| `products` | Product catalog - 28 products across 6 categories |
-| `orders` | Customer orders (total amount, status, timestamps) |
+| Table         | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `users`       | Registered users (name, email, hashed password)               |
+| `products`    | Product catalog - 28 products across 6 categories             |
+| `orders`      | Customer orders (total amount, status, timestamps)            |
 | `order_items` | Individual items within each order (product, quantity, price) |
-| `cart_items` | Current shopping cart contents per user |
+| `cart_items`  | Current shopping cart contents per user                       |
 
 ### Step 1: Get the Database Password
 
@@ -452,6 +448,7 @@ echo $DB_PASSWORD
 ```
 
 **How this works:**
+
 - `kubectl get secret` fetches the Kubernetes secret object
 - `-o jsonpath='{.data.DB_PASSWORD}'` extracts just the password field
 - `| base64 -d` decodes it from base64 (Kubernetes stores secrets in base64)
@@ -464,6 +461,7 @@ kubectl exec -it -n shopverse shopverse-mysql-0 -- mysql -u shopverse -p"$DB_PAS
 ```
 
 **How this works:**
+
 - `kubectl exec -it` runs an interactive command inside a pod
 - `-n shopverse` specifies the namespace
 - `shopverse-mysql-0` is the MySQL pod name (StatefulSet pod naming: `<name>-0`)
@@ -477,24 +475,31 @@ kubectl exec -it -n shopverse shopverse-mysql-0 -- mysql -u shopverse -p"$DB_PAS
 Once inside the MySQL shell (you'll see `mysql>` prompt):
 
 #### View all tables
+
 ```sql
 SHOW TABLES;
 ```
+
 This shows all 5 tables: `users`, `products`, `orders`, `order_items`, `cart_items`.
 
 #### View registered users
+
 ```sql
 SELECT id, name, email, created_at FROM users;
 ```
+
 Shows all users who registered through the app. Passwords are hashed with bcrypt so they are not shown here.
 
 #### View all products
+
 ```sql
 SELECT id, name, category, price, original_price, rating, badge FROM products;
 ```
+
 Lists all 28 seeded products with their category, pricing, rating, and badge info.
 
 #### View products grouped by category
+
 ```sql
 SELECT category, COUNT(*) AS total_products,
        ROUND(AVG(price), 2) AS avg_price,
@@ -504,9 +509,11 @@ FROM products
 GROUP BY category
 ORDER BY total_products DESC;
 ```
+
 Shows product count and price stats per category (Electronics, Clothing, Accessories, Food & Drinks, Sports, Home & Living).
 
 #### View all orders with customer info
+
 ```sql
 SELECT
     o.id AS order_id,
@@ -519,12 +526,15 @@ FROM orders o
 JOIN users u ON o.user_id = u.id
 ORDER BY o.created_at DESC;
 ```
+
 **How this works:**
+
 - `JOIN users u ON o.user_id = u.id` links each order to the user who placed it
 - `ORDER BY o.created_at DESC` shows newest orders first
 - `o.status` shows the order status (e.g., pending, completed)
 
 #### View order items with product details
+
 ```sql
 SELECT
     oi.order_id,
@@ -537,12 +547,15 @@ FROM order_items oi
 JOIN products p ON oi.product_id = p.id
 ORDER BY oi.order_id, p.name;
 ```
+
 **How this works:**
+
 - `order_items` stores what was purchased in each order
 - `JOIN products p ON oi.product_id = p.id` links item to its product details
 - `(oi.quantity * oi.price)` calculates the subtotal for each line item
 
 #### View complete order breakdown (orders + items together)
+
 ```sql
 SELECT
     o.id AS order_id,
@@ -560,9 +573,11 @@ JOIN order_items oi ON oi.order_id = o.id
 JOIN products p ON oi.product_id = p.id
 ORDER BY o.id, p.name;
 ```
+
 This is the most complete view - joins 4 tables to show who ordered what, quantities, prices, and order status.
 
 #### View current cart items
+
 ```sql
 SELECT
     ci.id AS cart_item_id,
@@ -577,9 +592,11 @@ JOIN users u ON ci.user_id = u.id
 JOIN products p ON ci.product_id = p.id
 ORDER BY u.name;
 ```
+
 Shows items currently in users' shopping carts (items that haven't been ordered yet).
 
 #### Dashboard summary
+
 ```sql
 SELECT
     (SELECT COUNT(*) FROM users) AS total_users,
@@ -588,9 +605,11 @@ SELECT
     (SELECT COALESCE(SUM(total_amount), 0) FROM orders) AS total_revenue,
     (SELECT COUNT(*) FROM cart_items) AS items_in_carts;
 ```
+
 A quick overview of the entire application's data - total users, products, orders, revenue, and active cart items.
 
 #### Exit MySQL shell
+
 ```sql
 EXIT;
 ```
@@ -641,6 +660,7 @@ kubectl exec -n shopverse shopverse-mysql-0 -- \
 ```
 
 **How the `-e` flag works:**
+
 - `-e "SQL QUERY"` executes the query and exits immediately (no interactive shell)
 - Useful for quick checks or scripting
 
@@ -652,17 +672,17 @@ kubectl exec -n shopverse shopverse-mysql-0 -- \
 
 Go to your GitHub repo > Settings > Secrets and variables > Actions, and add:
 
-| Secret                  | Description                                          |
-|-------------------------|------------------------------------------------------|
-| `AWS_ACCESS_KEY_ID`     | IAM user access key                                  |
-| `AWS_SECRET_ACCESS_KEY` | IAM user secret key                                  |
-| `AWS_REGION`            | e.g., `us-east-1`                                    |
-| `ECR_REGISTRY`          | e.g., `123456789.dkr.ecr.us-east-1.amazonaws.com`    |
-| `EKS_CLUSTER_NAME`      | e.g., `shopverse-cluster`                            |
-| `TF_STATE_BUCKET`       | Root@1234                                            |
-| `MYSQL_ROOT_PASSWORD`   | MySQL root password                                  |
-| `MYSQL_PASSWORD`        | App@1234                                             |
-| `JWT_SECRET`            | shopverse-secret-key-2024                            |
+| Secret                  | Description                                       |
+| ----------------------- | ------------------------------------------------- |
+| `AWS_ACCESS_KEY_ID`     | IAM user access key                               |
+| `AWS_SECRET_ACCESS_KEY` | IAM user secret key                               |
+| `AWS_REGION`            | e.g., `us-east-1`                                 |
+| `ECR_REGISTRY`          | e.g., `123456789.dkr.ecr.us-east-1.amazonaws.com` |
+| `EKS_CLUSTER_NAME`      | e.g., `shopverse-cluster`                         |
+| `TF_STATE_BUCKET`       | Root@1234                                         |
+| `MYSQL_ROOT_PASSWORD`   | MySQL root password                               |
+| `MYSQL_PASSWORD`        | App@1234                                          |
+| `JWT_SECRET`            | shopverse-secret-key-2024                         |
 
 ### Pipeline Stages
 
@@ -770,6 +790,7 @@ shopverse/
 ## Troubleshooting
 
 ### Pods stuck in Pending
+
 ```bash
 kubectl describe pod <pod-name> -n shopverse
 kubectl get pvc -n shopverse
@@ -777,6 +798,7 @@ kubectl get pvc -n shopverse
 ```
 
 ### Frontend can't reach backend (502/504)
+
 ```bash
 kubectl get svc -n shopverse
 kubectl logs -n shopverse -l component=backend
@@ -784,6 +806,7 @@ kubectl logs -n shopverse -l component=backend
 ```
 
 ### MySQL connection refused
+
 ```bash
 kubectl get pods -n shopverse -l component=mysql
 kubectl logs -n shopverse shopverse-mysql-0
@@ -791,6 +814,7 @@ kubectl logs -n shopverse shopverse-mysql-0
 ```
 
 ### Can't access NodePort from browser
+
 ```bash
 # Check node security group allows ports 30080 and 30081
 # AWS Console > EC2 > Security Groups > Node security group > Inbound rules
@@ -799,6 +823,7 @@ kubectl logs -n shopverse shopverse-mysql-0
 ```
 
 ### Images not updating after push
+
 ```bash
 # Use a new tag instead of reusing the same one
 helm upgrade shopverse ./helm/shopverse \
@@ -806,9 +831,6 @@ helm upgrade shopverse ./helm/shopverse \
   --set backend.image=<ECR>/shopverse-backend:v2 \
   --reuse-values -n shopverse
 ```
-
-
-
 
 **pipeline**
 
