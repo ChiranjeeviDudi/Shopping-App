@@ -1,11 +1,11 @@
 module github.com/shopverse/backend
 
-go 1.24
+go 1.25.0
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.11
 	github.com/golang-jwt/jwt/v5 v5.2.0
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.55.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
 )
@@ -24,5 +24,5 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 )
