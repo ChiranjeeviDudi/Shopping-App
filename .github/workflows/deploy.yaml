@@ -109,30 +109,30 @@ jobs:
 
       - name: Build and tag frontend image
         run: |
-          docker build -t ${{ env.ECR_REGISTRY }}/shopverse-frontend:${{ github.sha }} \
-                        -t ${{ env.ECR_REGISTRY }}/shopverse-frontend:latest \
+          docker build -t ${{ env.ECR_REGISTRY }}/shopverse-main-frontend:${{ github.sha }} \
+                        -t ${{ env.ECR_REGISTRY }}/shopverse-main-frontend:latest \
                         ./frontend
 
       - name: Build and tag backend image
         run: |
-          docker build -t ${{ env.ECR_REGISTRY }}/shopverse-backend:${{ github.sha }} \
-                        -t ${{ env.ECR_REGISTRY }}/shopverse-backend:latest \
+          docker build -t ${{ env.ECR_REGISTRY }}/shopverse-main-backend:${{ github.sha }} \
+                        -t ${{ env.ECR_REGISTRY }}/shopverse-main-backend:latest \
                         ./backend
 
       - name: Push frontend image
         run: |
-          docker push ${{ env.ECR_REGISTRY }}/shopverse-frontend:${{ github.sha }}
-          docker push ${{ env.ECR_REGISTRY }}/shopverse-frontend:latest
+          docker push ${{ env.ECR_REGISTRY }}/shopverse-main-frontend:${{ github.sha }}
+          docker push ${{ env.ECR_REGISTRY }}/shopverse-main-frontend:latest
 
       - name: Push backend image
         run: |
-          docker push ${{ env.ECR_REGISTRY }}/shopverse-backend:${{ github.sha }}
-          docker push ${{ env.ECR_REGISTRY }}/shopverse-backend:latest
+          docker push ${{ env.ECR_REGISTRY }}/shopverse-main-backend:${{ github.sha }}
+          docker push ${{ env.ECR_REGISTRY }}/shopverse-main-backend:latest
 
       - name: Update Helm values.yaml with new image tags
         run: |
-          FRONTEND_IMG="${{ env.ECR_REGISTRY }}/shopverse-frontend:${{ github.sha }}"
-          BACKEND_IMG="${{ env.ECR_REGISTRY }}/shopverse-backend:${{ github.sha }}"
+          FRONTEND_IMG="${{ env.ECR_REGISTRY }}/shopverse-main-frontend:${{ github.sha }}"
+          BACKEND_IMG="${{ env.ECR_REGISTRY }}/shopverse-main-backend:${{ github.sha }}"
           sed -i "s|image:.*# frontend-image|image: ${FRONTEND_IMG}  # frontend-image|" helm/shopverse/values.yaml
           sed -i "s|image:.*# backend-image|image: ${BACKEND_IMG}  # backend-image|" helm/shopverse/values.yaml
           echo "Updated values.yaml:"
