@@ -174,59 +174,101 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # - name: Check if EKS cluster exists
+      #   id: check-cluster
+      #   run: |
+      #     if aws eks describe-cluster --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }} > /dev/null 2>&1; then
+      #       echo "cluster_exists=true" >> "$GITHUB_OUTPUT"
+      #       echo "EKS cluster '${{ env.EKS_CLUSTER_NAME }}' found."
+      #     else
+      #       echo "cluster_exists=false" >> "$GITHUB_OUTPUT"
+      #       echo "EKS cluster '${{ env.EKS_CLUSTER_NAME }}' NOT found. Will provision with Terraform."
+      #     fi
+
+      # - name: Setup Terraform
+      #   if: steps.check-cluster.outputs.cluster_exists == 'false'
+      #   uses: hashicorp/setup-terraform@v3
+      #   with:
+      #     terraform_version: "1.7.0"
+
+      # - name: Terraform Init
+      #   if: steps.check-cluster.outputs.cluster_exists == 'false'
+      #   working-directory: ./terraform
+      #   run: |
+      #     terraform init \
+      #       -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+      #       -backend-config="key=eks/terraform.tfstate" \
+      #       -backend-config="region=${{ env.AWS_REGION }}"
+
+      # - name: Terraform Plan
+      #   if: steps.check-cluster.outputs.cluster_exists == 'false'
+      #   working-directory: ./terraform
+      #   run: |
+      #     terraform plan \
+      #       -var="aws_region=${{ env.AWS_REGION }}" \
+      #       -var="cluster_name=${{ env.EKS_CLUSTER_NAME }}" \
+      #       -var="project_name=shopverse" \
+      #       -var="create_jump_server=false" \
+      #       -out=tfplan
+
+      # - name: Terraform Apply
+      #   if: steps.check-cluster.outputs.cluster_exists == 'false'
+      #   working-directory: ./terraform
+      #   run: terraform apply -auto-approve tfplan
+
+      # - name: Wait for EKS cluster to be active
+      #   if: steps.check-cluster.outputs.cluster_exists == 'false'
+      #   run: |
+      #     echo "Waiting for EKS cluster to become ACTIVE..."
+      #     aws eks wait cluster-active --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+      #     echo "Waiting for node group to become ACTIVE..."
+      #     aws eks wait nodegroup-active \
+      #       --cluster-name ${{ env.EKS_CLUSTER_NAME }} \
+      #       --nodegroup-name ${{ env.EKS_CLUSTER_NAME }}-nodes \
+      #       --region ${{ env.AWS_REGION }}
+      #     echo "Cluster and nodes are ready."
+
+      - name: Normalize EKS cluster name
+        run: |
+          CLUSTER_NAME="$(printf '%s' "${EKS_CLUSTER_NAME}" | tr -d '\r\n')"
+
+          echo "Original cluster name:"
+          printf '%q\n' "${EKS_CLUSTER_NAME}"
+
+          echo "Normalized cluster name:"
+          printf '%q\n' "$CLUSTER_NAME"
+
+          echo "EKS_CLUSTER_NAME=$CLUSTER_NAME" >> "$GITHUB_ENV"
+
       - name: Check if EKS cluster exists
         id: check-cluster
         run: |
-          if aws eks describe-cluster --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }} > /dev/null 2>&1; then
+          echo "Checking EKS cluster: [$EKS_CLUSTER_NAME]"
+          echo "Region: [$AWS_REGION]"
+
+          if aws eks describe-cluster \
+            --name "$EKS_CLUSTER_NAME" \
+            --region "$AWS_REGION" \
+            > /tmp/eks-cluster.json 2> /tmp/eks-error.txt; then
+
             echo "cluster_exists=true" >> "$GITHUB_OUTPUT"
-            echo "EKS cluster '${{ env.EKS_CLUSTER_NAME }}' found."
+
+            echo "======================================"
+            echo "EKS cluster EXISTS"
+            echo "Cluster: $EKS_CLUSTER_NAME"
+            echo "======================================"
+
           else
+
             echo "cluster_exists=false" >> "$GITHUB_OUTPUT"
-            echo "EKS cluster '${{ env.EKS_CLUSTER_NAME }}' NOT found. Will provision with Terraform."
+
+            echo "======================================"
+            echo "EKS cluster NOT FOUND"
+            echo "AWS CLI error:"
+            cat /tmp/eks-error.txt
+            echo "======================================"
+
           fi
-
-      - name: Setup Terraform
-        if: steps.check-cluster.outputs.cluster_exists == 'false'
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.7.0"
-
-      - name: Terraform Init
-        if: steps.check-cluster.outputs.cluster_exists == 'false'
-        working-directory: ./terraform
-        run: |
-          terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=eks/terraform.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
-
-      - name: Terraform Plan
-        if: steps.check-cluster.outputs.cluster_exists == 'false'
-        working-directory: ./terraform
-        run: |
-          terraform plan \
-            -var="aws_region=${{ env.AWS_REGION }}" \
-            -var="cluster_name=${{ env.EKS_CLUSTER_NAME }}" \
-            -var="project_name=shopverse" \
-            -var="create_jump_server=false" \
-            -out=tfplan
-
-      - name: Terraform Apply
-        if: steps.check-cluster.outputs.cluster_exists == 'false'
-        working-directory: ./terraform
-        run: terraform apply -auto-approve tfplan
-
-      - name: Wait for EKS cluster to be active
-        if: steps.check-cluster.outputs.cluster_exists == 'false'
-        run: |
-          echo "Waiting for EKS cluster to become ACTIVE..."
-          aws eks wait cluster-active --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
-          echo "Waiting for node group to become ACTIVE..."
-          aws eks wait nodegroup-active \
-            --cluster-name ${{ env.EKS_CLUSTER_NAME }} \
-            --nodegroup-name ${{ env.EKS_CLUSTER_NAME }}-nodes \
-            --region ${{ env.AWS_REGION }}
-          echo "Cluster and nodes are ready."
 
       - name: Install AWS Load Balancer Controller
         if: steps.check-cluster.outputs.cluster_exists == 'false'
